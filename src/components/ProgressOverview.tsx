@@ -1,56 +1,85 @@
 import type { Task } from "@/lib/tasks";
 import { weeklyProgress } from "@/lib/tasks";
-import { TrendingUp, CheckCircle2, ListTodo } from "lucide-react";
+import { CheckCircle2, CircleDot, Circle, AlertCircle } from "lucide-react";
 
 export function ProgressOverview({ tasks }: { tasks: Task[] }) {
   const { completed, total, percent } = weeklyProgress(tasks);
-  const active = tasks.filter((t) => t.status !== "completed").length;
   const inProgress = tasks.filter((t) => t.status === "in_progress").length;
+  const notStarted = tasks.filter((t) => t.status === "not_started").length;
+  const overdue = tasks.filter((t) => t.status === "overdue").length;
+  const done = tasks.filter((t) => t.status === "completed").length;
+
+  const stats = [
+    { label: "Done", value: done, icon: CheckCircle2, color: "text-success" },
+    { label: "In progress", value: inProgress, icon: CircleDot, color: "text-primary" },
+    { label: "To do", value: notStarted, icon: Circle, color: "text-muted-foreground" },
+    { label: "Overdue", value: overdue, icon: AlertCircle, color: "text-destructive" },
+  ];
 
   return (
     <div className="rounded-3xl border bg-card p-6 shadow-[var(--shadow-soft)]">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Weekly progress</h2>
-          <p className="text-sm text-muted-foreground">Tasks completed in the last 7 days</p>
+          <p className="text-sm font-medium text-muted-foreground">This week</p>
+          <p className="mt-1 text-3xl font-bold text-foreground">{percent}%</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {completed} of {total} completed
+          </p>
         </div>
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-soft text-primary">
-          <TrendingUp className="h-5 w-5" />
-        </div>
+        <RingProgress percent={percent} />
       </div>
 
-      <div className="mt-6 flex items-baseline gap-2">
-        <span className="text-4xl font-bold text-foreground">{percent}%</span>
-        <span className="text-sm text-muted-foreground">
-          {completed} of {total} done
-        </span>
-      </div>
-
-      <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-secondary">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-primary to-success transition-all duration-700 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-700"
           style={{ width: `${percent}%` }}
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-secondary/60 p-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <ListTodo className="h-4 w-4" />
-            <span className="text-xs font-medium uppercase tracking-wide">Active</span>
-          </div>
-          <p className="mt-1 text-2xl font-semibold text-foreground">{active}</p>
-          <p className="text-xs text-muted-foreground">{inProgress} in progress</p>
-        </div>
-        <div className="rounded-2xl bg-accent/60 p-4">
-          <div className="flex items-center gap-2 text-accent-foreground">
-            <CheckCircle2 className="h-4 w-4" />
-            <span className="text-xs font-medium uppercase tracking-wide">Completed</span>
-          </div>
-          <p className="mt-1 text-2xl font-semibold text-foreground">{completed}</p>
-          <p className="text-xs text-muted-foreground">this week</p>
-        </div>
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        {stats.map((s) => {
+          const Icon = s.icon;
+          return (
+            <div key={s.label} className="rounded-xl bg-secondary/50 p-3">
+              <div className="flex items-center gap-2">
+                <Icon className={`h-4 w-4 ${s.color}`} />
+                <span className="text-xs font-medium text-muted-foreground">{s.label}</span>
+              </div>
+              <p className="mt-1 text-xl font-bold tabular-nums text-foreground">{s.value}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
+  );
+}
+
+function RingProgress({ percent }: { percent: number }) {
+  const r = 26;
+  const c = 2 * Math.PI * r;
+  const offset = c - (percent / 100) * c;
+  return (
+    <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
+      <circle
+        cx="32"
+        cy="32"
+        r={r}
+        fill="none"
+        stroke="var(--secondary)"
+        strokeWidth="6"
+      />
+      <circle
+        cx="32"
+        cy="32"
+        r={r}
+        fill="none"
+        stroke="var(--primary)"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeDasharray={c}
+        strokeDashoffset={offset}
+        className="transition-all duration-700"
+      />
+    </svg>
   );
 }
