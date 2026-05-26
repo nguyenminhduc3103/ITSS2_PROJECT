@@ -67,62 +67,29 @@ export function WeekCalendar({ tasks }: { tasks: Task[] }) {
               <div key={h} className="h-16 border-b" />
             ))}
 
-            {(() => {
-              const dayTasks = scheduled
-                .filter((t) => isSameDay(new Date(t.scheduledFor!), d))
-                .map((t) => {
-                  const start = new Date(t.scheduledFor!);
-                  const startMin = start.getHours() * 60 + start.getMinutes();
-                  return { t, start, startMin, endMin: startMin + t.workload };
-                })
-                .sort((a, b) => a.startMin - b.startMin);
-
-              const colEnds: number[] = [];
-              const placed = dayTasks.map((item) => {
-                let col = colEnds.findIndex((end) => end <= item.startMin);
-                if (col === -1) {
-                  col = colEnds.length;
-                  colEnds.push(item.endMin);
-                } else {
-                  colEnds[col] = item.endMin;
-                }
-                return { ...item, col };
-              });
-              const totalCols = Math.max(1, colEnds.length);
-
-              return placed.map(({ t, start, col }) => {
+            {scheduled
+              .filter((t) => isSameDay(new Date(t.scheduledFor!), d))
+              .map((t) => {
+                const start = new Date(t.scheduledFor!);
                 const hour = start.getHours() + start.getMinutes() / 60;
                 const top = (hour - 8) * 64;
-                const height = Math.max(32, (t.workload / 60) * 64) - 2;
-                const widthPct = 100 / totalCols;
-                const compact = height < 44;
+                const height = Math.max(28, (t.workload / 60) * 64);
                 return (
                   <div
                     key={t.id}
-                    title={`${t.name} · ${format(start, "h:mm a")} · ${t.workload}m`}
                     className={cn(
-                      "absolute overflow-hidden rounded-lg border px-2 py-1 text-xs shadow-sm transition-all hover:z-20 hover:shadow-md",
+                      "absolute left-1 right-1 rounded-lg border px-2 py-1.5 text-xs shadow-sm transition-all hover:z-10 hover:-translate-y-0.5 hover:shadow-md",
                       CATEGORY_COLOR[t.category],
                     )}
-                    style={{
-                      top: `${top}px`,
-                      height: `${height}px`,
-                      left: `calc(${col * widthPct}% + 2px)`,
-                      width: `calc(${widthPct}% - 4px)`,
-                    }}
+                    style={{ top: `${top}px`, height: `${height}px` }}
                   >
-                    <p className="truncate text-[11px] font-semibold leading-tight">
-                      {t.name}
+                    <p className="truncate font-semibold">{t.name}</p>
+                    <p className="truncate text-[10px] opacity-80">
+                      {format(start, "h:mm a")} · {t.workload}m
                     </p>
-                    {!compact && (
-                      <p className="truncate text-[10px] leading-tight opacity-75">
-                        {format(start, "h:mm a")} · {t.workload}m
-                      </p>
-                    )}
                   </div>
                 );
-              });
-            })()}
+              })}
           </div>
         ))}
       </div>
