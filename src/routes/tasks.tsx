@@ -184,6 +184,8 @@ function TasksPage() {
               onToggleSubtask={toggleSubtask}
               onAddSubtask={addSubtask}
               onDeleteSubtask={deleteSubtask}
+              onUpdateTask={updateTask}
+              onUpdateSubtask={updateSubtask}
             />
           ))}
         </div>
@@ -199,6 +201,8 @@ function TasksPage() {
               onToggleSubtask={toggleSubtask}
               onAddSubtask={addSubtask}
               onDeleteSubtask={deleteSubtask}
+              onUpdateTask={updateTask}
+              onUpdateSubtask={updateSubtask}
             />
           ))}
         </div>
