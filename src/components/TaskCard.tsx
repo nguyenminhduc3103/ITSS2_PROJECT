@@ -61,6 +61,8 @@ export function TaskCard({
   const [editOpen, setEditOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const completed = task.status === "completed";
   const overdue = !completed && isPast(new Date(task.deadline));
   const deadline = new Date(task.deadline);
