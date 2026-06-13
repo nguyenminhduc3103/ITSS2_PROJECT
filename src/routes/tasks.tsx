@@ -49,6 +49,7 @@ function TasksPage() {
     toggleSubtask,
     addSubtask,
     deleteSubtask,
+    updateSubtask,
   } = useTasks();
   const [filter, setFilter] = useState<Filter>("all");
   const [view, setView] = useState<View>("list");
@@ -183,6 +184,8 @@ function TasksPage() {
               onToggleSubtask={toggleSubtask}
               onAddSubtask={addSubtask}
               onDeleteSubtask={deleteSubtask}
+              onUpdateTask={updateTask}
+              onUpdateSubtask={updateSubtask}
             />
           ))}
         </div>
@@ -198,6 +201,8 @@ function TasksPage() {
               onToggleSubtask={toggleSubtask}
               onAddSubtask={addSubtask}
               onDeleteSubtask={deleteSubtask}
+              onUpdateTask={updateTask}
+              onUpdateSubtask={updateSubtask}
             />
           ))}
         </div>

@@ -8,11 +8,13 @@ import {
   ChevronRight,
   Plus,
   Hourglass,
+  Pencil,
 } from "lucide-react";
 import { format, formatDistanceToNow, isPast } from "date-fns";
 import type { Task, Status } from "@/lib/tasks";
 import { priorityScore, subtaskProgress } from "@/lib/tasks";
 import { PriorityBadge } from "./PriorityBadge";
+import { EditTaskDialog } from "./EditTaskDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -25,6 +27,8 @@ interface Props {
   onToggleSubtask?: (taskId: string, subId: string) => void;
   onAddSubtask?: (taskId: string, name: string) => void;
   onDeleteSubtask?: (taskId: string, subId: string) => void;
+  onUpdateTask?: (id: string, patch: Partial<Task>) => void;
+  onUpdateSubtask?: (taskId: string, subId: string, name: string) => void;
   featured?: boolean;
 }
 
@@ -48,10 +52,15 @@ export function TaskCard({
   onToggleSubtask,
   onAddSubtask,
   onDeleteSubtask,
+  onUpdateTask,
+  onUpdateSubtask,
   featured,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [newSub, setNewSub] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
   const completed = task.status === "completed";
   const overdue = !completed && isPast(new Date(task.deadline));
   const deadline = new Date(task.deadline);
@@ -87,7 +96,10 @@ export function TaskCard({
                 "font-semibold text-foreground",
                 featured && "text-lg",
                 completed && "line-through",
+                onUpdateTask && "cursor-pointer hover:text-primary transition-colors",
               )}
+              onClick={() => onUpdateTask && setEditOpen(true)}
+              title={onUpdateTask ? "Click to edit" : undefined}
             >
               {task.name}
             </h3>
@@ -180,15 +192,28 @@ export function TaskCard({
           )}
         </div>
 
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => onDelete(task.id)}
-          className="opacity-0 transition-opacity group-hover:opacity-100"
-          aria-label="Delete task"
-        >
-          <Trash2 className="h-4 w-4 text-muted-foreground" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {onUpdateTask && (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => setEditOpen(true)}
+              className="opacity-0 transition-opacity group-hover:opacity-100"
+              aria-label="Edit task"
+            >
+              <Pencil className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          )}
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => onDelete(task.id)}
+            className="opacity-0 transition-opacity group-hover:opacity-100"
+            aria-label="Delete task"
+          >
+            <Trash2 className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </div>
       </div>
 
       {expanded && (
@@ -209,14 +234,59 @@ export function TaskCard({
               >
                 {s.done && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
               </button>
-              <span
-                className={cn(
-                  "flex-1 text-sm",
-                  s.done ? "text-muted-foreground line-through" : "text-foreground",
-                )}
-              >
-                {s.name}
-              </span>
+              {renamingId === s.id && onUpdateSubtask ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (renameValue.trim()) {
+                      onUpdateSubtask(task.id, s.id, renameValue.trim());
+                    }
+                    setRenamingId(null);
+                  }}
+                  className="flex flex-1 items-center gap-1"
+                >
+                  <Input
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onBlur={() => setRenamingId(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setRenamingId(null);
+                    }}
+                    autoFocus
+                    className="h-6 flex-1 border-0 bg-card px-1 text-sm shadow-none focus-visible:ring-1"
+                  />
+                </form>
+              ) : (
+                <span
+                  className={cn(
+                    "flex-1 text-sm",
+                    s.done ? "text-muted-foreground line-through" : "text-foreground",
+                    onUpdateSubtask && "cursor-text",
+                  )}
+                  onDoubleClick={() => {
+                    if (onUpdateSubtask) {
+                      setRenamingId(s.id);
+                      setRenameValue(s.name);
+                    }
+                  }}
+                  title={onUpdateSubtask ? "Double-click to rename" : undefined}
+                >
+                  {s.name}
+                </span>
+              )}
+              {onUpdateSubtask && renamingId !== s.id && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRenamingId(s.id);
+                    setRenameValue(s.name);
+                  }}
+                  className="opacity-0 transition-opacity group-hover/sub:opacity-100"
+                  aria-label="Rename subtask"
+                >
+                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                </button>
+              )}
               {onDeleteSubtask && (
                 <button
                   onClick={() => onDeleteSubtask(task.id, s.id)}
@@ -248,6 +318,19 @@ export function TaskCard({
             </form>
           )}
         </div>
+      )}
+
+      {onUpdateTask && (
+        <EditTaskDialog
+          task={task}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onUpdate={onUpdateTask}
+          onToggleSubtask={(tid, sid) => onToggleSubtask?.(tid, sid)}
+          onAddSubtask={(tid, name) => onAddSubtask?.(tid, name)}
+          onDeleteSubtask={(tid, sid) => onDeleteSubtask?.(tid, sid)}
+          onUpdateSubtask={(tid, sid, name) => onUpdateSubtask?.(tid, sid, name)}
+        />
       )}
     </div>
   );

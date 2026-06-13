@@ -38,6 +38,7 @@ function Dashboard() {
     toggleSubtask,
     addSubtask,
     deleteSubtask,
+    updateSubtask,
   } = useTasks();
 
   const sorted = useMemo(() => sortTasks(tasks), [tasks]);
@@ -91,6 +92,8 @@ function Dashboard() {
                 onToggleSubtask={toggleSubtask}
                 onAddSubtask={addSubtask}
                 onDeleteSubtask={deleteSubtask}
+                onUpdateTask={updateTask}
+                onUpdateSubtask={updateSubtask}
                 featured
               />
             </section>
@@ -114,6 +117,10 @@ function Dashboard() {
                     onDelete={deleteTask}
                     onCycleStatus={cycle}
                     onToggleSubtask={toggleSubtask}
+                    onAddSubtask={addSubtask}
+                    onDeleteSubtask={deleteSubtask}
+                    onUpdateTask={updateTask}
+                    onUpdateSubtask={updateSubtask}
                   />
                 ))}
               </div>
@@ -143,6 +150,10 @@ function Dashboard() {
                     onDelete={deleteTask}
                     onCycleStatus={cycle}
                     onToggleSubtask={toggleSubtask}
+                    onAddSubtask={addSubtask}
+                    onDeleteSubtask={deleteSubtask}
+                    onUpdateTask={updateTask}
+                    onUpdateSubtask={updateSubtask}
                   />
                 ))}
             </div>
