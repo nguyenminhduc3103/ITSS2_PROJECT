@@ -149,8 +149,7 @@ export function TaskCard({
               )}
             >
               <Clock className="h-3.5 w-3.5" />
-              {overdue ? "Overdue · " : ""}
-              {formatDistanceToNow(deadline, { addSuffix: true })}
+              {mounted ? (overdue ? "Overdue · " : "") + formatDistanceToNow(deadline, { addSuffix: true }) : format(deadline, "MMM d, h:mm a")}
               <span className="text-muted-foreground/60">
                 · {format(deadline, "MMM d, h:mm a")}
               </span>
