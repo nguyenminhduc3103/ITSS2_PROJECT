@@ -103,6 +103,16 @@ export function useTasks() {
     );
   }, []);
 
+  const updateSubtask = useCallback((taskId: string, subId: string, name: string) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId
+          ? { ...t, subtasks: t.subtasks.map((s) => (s.id === subId ? { ...s, name } : s)) }
+          : t,
+      ),
+    );
+  }, []);
+
   return {
     tasks,
     addTask,
