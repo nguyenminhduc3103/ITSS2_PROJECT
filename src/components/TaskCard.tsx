@@ -8,11 +8,13 @@ import {
   ChevronRight,
   Plus,
   Hourglass,
+  Pencil,
 } from "lucide-react";
 import { format, formatDistanceToNow, isPast } from "date-fns";
 import type { Task, Status } from "@/lib/tasks";
 import { priorityScore, subtaskProgress } from "@/lib/tasks";
 import { PriorityBadge } from "./PriorityBadge";
+import { EditTaskDialog } from "./EditTaskDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -25,6 +27,8 @@ interface Props {
   onToggleSubtask?: (taskId: string, subId: string) => void;
   onAddSubtask?: (taskId: string, name: string) => void;
   onDeleteSubtask?: (taskId: string, subId: string) => void;
+  onUpdateTask?: (id: string, patch: Partial<Task>) => void;
+  onUpdateSubtask?: (taskId: string, subId: string, name: string) => void;
   featured?: boolean;
 }
 
