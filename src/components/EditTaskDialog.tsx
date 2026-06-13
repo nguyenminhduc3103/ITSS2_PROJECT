@@ -69,11 +69,16 @@ export function EditTaskDialog({
       setWorkload(String(task.workload));
       setEditingId(null);
     }
-  }, [open, task]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const save = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+    if (newSub.trim()) {
+      onAddSubtask(task.id, newSub.trim());
+      setNewSub("");
+    }
     onUpdate(task.id, {
       name: name.trim(),
       description: description.trim() || undefined,

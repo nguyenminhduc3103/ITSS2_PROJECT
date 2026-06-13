@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Check,
   Clock,
@@ -61,6 +61,8 @@ export function TaskCard({
   const [editOpen, setEditOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const completed = task.status === "completed";
   const overdue = !completed && isPast(new Date(task.deadline));
   const deadline = new Date(task.deadline);
@@ -147,8 +149,7 @@ export function TaskCard({
               )}
             >
               <Clock className="h-3.5 w-3.5" />
-              {overdue ? "Overdue · " : ""}
-              {formatDistanceToNow(deadline, { addSuffix: true })}
+              {mounted ? (overdue ? "Overdue · " : "") + formatDistanceToNow(deadline, { addSuffix: true }) : format(deadline, "MMM d, h:mm a")}
               <span className="text-muted-foreground/60">
                 · {format(deadline, "MMM d, h:mm a")}
               </span>
