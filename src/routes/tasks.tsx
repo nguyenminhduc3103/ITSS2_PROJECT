@@ -49,6 +49,7 @@ function TasksPage() {
     toggleSubtask,
     addSubtask,
     deleteSubtask,
+    updateSubtask,
   } = useTasks();
   const [filter, setFilter] = useState<Filter>("all");
   const [view, setView] = useState<View>("list");
