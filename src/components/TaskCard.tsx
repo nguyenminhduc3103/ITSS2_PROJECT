@@ -319,6 +319,19 @@ export function TaskCard({
           )}
         </div>
       )}
+
+      {onUpdateTask && (
+        <EditTaskDialog
+          task={task}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onUpdate={onUpdateTask}
+          onToggleSubtask={(tid, sid) => onToggleSubtask?.(tid, sid)}
+          onAddSubtask={(tid, name) => onAddSubtask?.(tid, name)}
+          onDeleteSubtask={(tid, sid) => onDeleteSubtask?.(tid, sid)}
+          onUpdateSubtask={(tid, sid, name) => onUpdateSubtask?.(tid, sid, name)}
+        />
+      )}
     </div>
   );
 }
