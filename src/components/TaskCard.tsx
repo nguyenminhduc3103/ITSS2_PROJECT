@@ -192,15 +192,28 @@ export function TaskCard({
           )}
         </div>
 
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => onDelete(task.id)}
-          className="opacity-0 transition-opacity group-hover:opacity-100"
-          aria-label="Delete task"
-        >
-          <Trash2 className="h-4 w-4 text-muted-foreground" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {onUpdateTask && (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => setEditOpen(true)}
+              className="opacity-0 transition-opacity group-hover:opacity-100"
+              aria-label="Edit task"
+            >
+              <Pencil className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          )}
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => onDelete(task.id)}
+            className="opacity-0 transition-opacity group-hover:opacity-100"
+            aria-label="Delete task"
+          >
+            <Trash2 className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </div>
       </div>
 
       {expanded && (
