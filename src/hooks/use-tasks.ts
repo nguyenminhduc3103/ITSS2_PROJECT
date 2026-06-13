@@ -122,5 +122,6 @@ export function useTasks() {
     toggleSubtask,
     addSubtask,
     deleteSubtask,
+    updateSubtask,
   };
 }
