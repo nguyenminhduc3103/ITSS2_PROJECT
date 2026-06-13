@@ -96,7 +96,10 @@ export function TaskCard({
                 "font-semibold text-foreground",
                 featured && "text-lg",
                 completed && "line-through",
+                onUpdateTask && "cursor-pointer hover:text-primary transition-colors",
               )}
+              onClick={() => onUpdateTask && setEditOpen(true)}
+              title={onUpdateTask ? "Click to edit" : undefined}
             >
               {task.name}
             </h3>
