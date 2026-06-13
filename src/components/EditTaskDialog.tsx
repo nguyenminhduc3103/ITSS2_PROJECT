@@ -69,7 +69,8 @@ export function EditTaskDialog({
       setWorkload(String(task.workload));
       setEditingId(null);
     }
-  }, [open, task]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const save = (e: React.FormEvent) => {
     e.preventDefault();
