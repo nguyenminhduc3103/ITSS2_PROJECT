@@ -52,10 +52,15 @@ export function TaskCard({
   onToggleSubtask,
   onAddSubtask,
   onDeleteSubtask,
+  onUpdateTask,
+  onUpdateSubtask,
   featured,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [newSub, setNewSub] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
   const completed = task.status === "completed";
   const overdue = !completed && isPast(new Date(task.deadline));
   const deadline = new Date(task.deadline);
