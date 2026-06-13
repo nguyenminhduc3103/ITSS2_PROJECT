@@ -38,6 +38,7 @@ function Dashboard() {
     toggleSubtask,
     addSubtask,
     deleteSubtask,
+    updateSubtask,
   } = useTasks();
 
   const sorted = useMemo(() => sortTasks(tasks), [tasks]);
