@@ -234,14 +234,59 @@ export function TaskCard({
               >
                 {s.done && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
               </button>
-              <span
-                className={cn(
-                  "flex-1 text-sm",
-                  s.done ? "text-muted-foreground line-through" : "text-foreground",
-                )}
-              >
-                {s.name}
-              </span>
+              {renamingId === s.id && onUpdateSubtask ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (renameValue.trim()) {
+                      onUpdateSubtask(task.id, s.id, renameValue.trim());
+                    }
+                    setRenamingId(null);
+                  }}
+                  className="flex flex-1 items-center gap-1"
+                >
+                  <Input
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onBlur={() => setRenamingId(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setRenamingId(null);
+                    }}
+                    autoFocus
+                    className="h-6 flex-1 border-0 bg-card px-1 text-sm shadow-none focus-visible:ring-1"
+                  />
+                </form>
+              ) : (
+                <span
+                  className={cn(
+                    "flex-1 text-sm",
+                    s.done ? "text-muted-foreground line-through" : "text-foreground",
+                    onUpdateSubtask && "cursor-text",
+                  )}
+                  onDoubleClick={() => {
+                    if (onUpdateSubtask) {
+                      setRenamingId(s.id);
+                      setRenameValue(s.name);
+                    }
+                  }}
+                  title={onUpdateSubtask ? "Double-click to rename" : undefined}
+                >
+                  {s.name}
+                </span>
+              )}
+              {onUpdateSubtask && renamingId !== s.id && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRenamingId(s.id);
+                    setRenameValue(s.name);
+                  }}
+                  className="opacity-0 transition-opacity group-hover/sub:opacity-100"
+                  aria-label="Rename subtask"
+                >
+                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                </button>
+              )}
               {onDeleteSubtask && (
                 <button
                   onClick={() => onDeleteSubtask(task.id, s.id)}
