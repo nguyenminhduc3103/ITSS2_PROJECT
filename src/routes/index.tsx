@@ -92,6 +92,8 @@ function Dashboard() {
                 onToggleSubtask={toggleSubtask}
                 onAddSubtask={addSubtask}
                 onDeleteSubtask={deleteSubtask}
+                onUpdateTask={updateTask}
+                onUpdateSubtask={updateSubtask}
                 featured
               />
             </section>
