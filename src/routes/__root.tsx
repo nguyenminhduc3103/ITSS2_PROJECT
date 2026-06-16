@@ -1,4 +1,5 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { LanguageProvider } from "@/lib/i18n";
 
 import appCss from "../styles.css?url";
 
@@ -29,18 +30,16 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
+      { title: "FocusFlow" },
       { name: "description", content: "A modern web app UI for students to manage academic workload and reduce stress." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
+      { property: "og:title", content: "FocusFlow" },
       { property: "og:description", content: "A modern web app UI for students to manage academic workload and reduce stress." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
+      { name: "twitter:title", content: "FocusFlow" },
       { name: "twitter:description", content: "A modern web app UI for students to manage academic workload and reduce stress." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fc4d5470-8f7b-466a-972a-4ca221d8fa63/id-preview-db86cba9--534aeda5-b308-4991-a9e4-e7b7470cf480.lovable.app-1779770706860.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fc4d5470-8f7b-466a-972a-4ca221d8fa63/id-preview-db86cba9--534aeda5-b308-4991-a9e4-e7b7470cf480.lovable.app-1779770706860.png" },
     ],
     links: [
       {
@@ -56,7 +55,7 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <head>
         <HeadContent />
       </head>
@@ -69,5 +68,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <LanguageProvider>
+      <Outlet />
+    </LanguageProvider>
+  );
 }

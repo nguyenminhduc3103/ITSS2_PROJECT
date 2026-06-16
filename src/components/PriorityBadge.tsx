@@ -1,16 +1,15 @@
 import { cn } from "@/lib/utils";
 import type { Priority } from "@/lib/tasks";
+import { useT } from "@/lib/i18n";
 
-// Spec: High = red, Medium = yellow, Low = blue
 const styles: Record<Priority, string> = {
   high: "bg-destructive/10 text-destructive border-destructive/20",
   medium: "bg-warning/15 text-[oklch(0.45_0.13_75)] border-warning/30",
   low: "bg-primary/10 text-primary border-primary/20",
 };
 
-const labels: Record<Priority, string> = { high: "High", medium: "Medium", low: "Low" };
-
 export function PriorityBadge({ priority, className }: { priority: Priority; className?: string }) {
+  const { t } = useT();
   return (
     <span
       className={cn(
@@ -27,7 +26,7 @@ export function PriorityBadge({ priority, className }: { priority: Priority; cla
           priority === "low" && "bg-primary",
         )}
       />
-      {labels[priority]}
+      {t(`priority.${priority}`)}
     </span>
   );
 }

@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PriorityBadge } from "@/components/PriorityBadge";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/tasks")({
   head: () => ({
@@ -33,13 +34,14 @@ type Filter = "all" | "active" | "completed" | "overdue";
 type Sort = "smart" | "deadline" | "priority" | "workload";
 type View = "list" | "grid";
 
-const CATEGORIES: (Category | "All")[] = ["All", "School", "Project", "Internship", "Work", "Personal"];
+const CATEGORIES: (Category | "All")[] = ["All", "School", "Work"];
 
 function nextStatus(s: Status): Status {
   return s === "not_started" ? "in_progress" : s === "in_progress" ? "completed" : "not_started";
 }
 
 function TasksPage() {
+  const { t } = useT();
   const {
     tasks,
     addTask,
@@ -59,17 +61,17 @@ function TasksPage() {
 
   const visible = useMemo(() => {
     let list = [...tasks];
-    if (filter === "active") list = list.filter((t) => t.status !== "completed");
-    if (filter === "completed") list = list.filter((t) => t.status === "completed");
+    if (filter === "active") list = list.filter((x) => x.status !== "completed");
+    if (filter === "completed") list = list.filter((x) => x.status === "completed");
     if (filter === "overdue")
       list = list.filter(
-        (t) => t.status !== "completed" && new Date(t.deadline).getTime() < Date.now(),
+        (x) => x.status !== "completed" && new Date(x.deadline).getTime() < Date.now(),
       );
-    if (cat !== "All") list = list.filter((t) => t.category === cat);
+    if (cat !== "All") list = list.filter((x) => x.category === cat);
     if (q.trim()) {
       const s = q.toLowerCase();
       list = list.filter(
-        (t) => t.name.toLowerCase().includes(s) || t.description?.toLowerCase().includes(s),
+        (x) => x.name.toLowerCase().includes(s) || x.description?.toLowerCase().includes(s),
       );
     }
     if (sort === "smart") return sortTasks(list);
@@ -83,24 +85,23 @@ function TasksPage() {
   }, [tasks, filter, cat, q, sort]);
 
   const cycle = (id: string) => {
-    const t = tasks.find((x) => x.id === id);
-    if (t) updateTask(id, { status: nextStatus(t.status) });
+    const tk = tasks.find((x) => x.id === id);
+    if (tk) updateTask(id, { status: nextStatus(tk.status) });
   };
 
   return (
     <AppShell
-      title="All tasks"
-      subtitle="Your full workload in one place."
+      title={t("tasks.title")}
+      subtitle={t("tasks.subtitle")}
       action={<AddTaskDialog onAdd={addTask} />}
     >
-      {/* Toolbar */}
       <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm">
         <div className="relative min-w-[200px] flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search tasks..."
+            placeholder={t("tasks.search")}
             className="border-0 bg-secondary/60 pl-9"
           />
         </div>
@@ -112,7 +113,7 @@ function TasksPage() {
           <SelectContent>
             {CATEGORIES.map((c) => (
               <SelectItem key={c} value={c}>
-                {c}
+                {t(`category.${c}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -123,10 +124,10 @@ function TasksPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="smart">Smart priority</SelectItem>
-            <SelectItem value="deadline">Soonest deadline</SelectItem>
-            <SelectItem value="priority">Importance</SelectItem>
-            <SelectItem value="workload">Workload</SelectItem>
+            <SelectItem value="smart">{t("tasks.sort.smart")}</SelectItem>
+            <SelectItem value="deadline">{t("tasks.sort.deadline")}</SelectItem>
+            <SelectItem value="priority">{t("tasks.sort.priority")}</SelectItem>
+            <SelectItem value="workload">{t("tasks.sort.workload")}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -153,15 +154,15 @@ function TasksPage() {
       <div className="mb-4 flex items-center justify-between gap-3">
         <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
           <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="overdue">Overdue</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="all">{t("tasks.filter.all")}</TabsTrigger>
+            <TabsTrigger value="active">{t("tasks.filter.active")}</TabsTrigger>
+            <TabsTrigger value="overdue">{t("tasks.filter.overdue")}</TabsTrigger>
+            <TabsTrigger value="completed">{t("tasks.filter.completed")}</TabsTrigger>
           </TabsList>
         </Tabs>
 
         <div className="hidden items-center gap-2 text-xs text-muted-foreground md:flex">
-          <span>Priority:</span>
+          <span>{t("tasks.priority")}</span>
           <PriorityBadge priority="high" />
           <PriorityBadge priority="medium" />
           <PriorityBadge priority="low" />
@@ -170,14 +171,14 @@ function TasksPage() {
 
       {visible.length === 0 ? (
         <div className="rounded-3xl border border-dashed bg-card/40 p-12 text-center text-sm text-muted-foreground">
-          Nothing here. Add your first task to get started.
+          {t("tasks.empty")}
         </div>
       ) : view === "list" ? (
         <div className="space-y-3">
-          {visible.map((t) => (
+          {visible.map((tk) => (
             <TaskCard
-              key={t.id}
-              task={t}
+              key={tk.id}
+              task={tk}
               onToggle={toggleComplete}
               onDelete={deleteTask}
               onCycleStatus={cycle}
@@ -191,10 +192,10 @@ function TasksPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {visible.map((t) => (
+          {visible.map((tk) => (
             <TaskCard
-              key={t.id}
-              task={t}
+              key={tk.id}
+              task={tk}
               onToggle={toggleComplete}
               onDelete={deleteTask}
               onCycleStatus={cycle}

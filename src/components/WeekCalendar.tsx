@@ -1,15 +1,12 @@
 import { useMemo } from "react";
 import { addDays, format, isSameDay, startOfWeek } from "date-fns";
-import type { Task } from "@/lib/tasks";
+import type { Task, Category } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 
-const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8am - 8pm
-const CATEGORY_COLOR: Record<string, string> = {
+const HOURS = Array.from({ length: 13 }, (_, i) => i + 8);
+const CATEGORY_COLOR: Record<Category, string> = {
   School: "bg-primary/15 border-primary/40 text-primary",
-  Project: "bg-accent border-accent text-accent-foreground",
-  Internship: "bg-warning/20 border-warning/40 text-[oklch(0.4_0.13_75)]",
   Work: "bg-success/15 border-success/40 text-[oklch(0.35_0.1_160)]",
-  Personal: "bg-secondary border-border text-secondary-foreground",
 };
 
 export function WeekCalendar({ tasks }: { tasks: Task[] }) {
@@ -29,10 +26,7 @@ export function WeekCalendar({ tasks }: { tasks: Task[] }) {
           return (
             <div
               key={d.toISOString()}
-              className={cn(
-                "border-l px-3 py-3 text-center",
-                today && "bg-primary-soft/50",
-              )}
+              className={cn("border-l px-3 py-3 text-center", today && "bg-primary-soft/50")}
             >
               <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 {format(d, "EEE")}

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import type { Priority, Category, Task } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 interface Props {
   task: Task;
@@ -49,6 +50,7 @@ export function EditTaskDialog({
   onDeleteSubtask,
   onUpdateSubtask,
 }: Props) {
+  const { t } = useT();
   const [name, setName] = useState(task.name);
   const [description, setDescription] = useState(task.description ?? "");
   const [deadline, setDeadline] = useState(toLocal(task.deadline));
@@ -99,16 +101,16 @@ export function EditTaskDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit task</DialogTitle>
-          <DialogDescription>Update details and manage subtasks.</DialogDescription>
+          <DialogTitle>{t("task.edit")}</DialogTitle>
+          <DialogDescription>{t("task.edit.desc")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={save} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="e-name">Task name</Label>
+            <Label htmlFor="e-name">{t("task.name")}</Label>
             <Input id="e-name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="e-desc">Description</Label>
+            <Label htmlFor="e-desc">{t("task.description")}</Label>
             <Textarea
               id="e-desc"
               value={description}
@@ -117,7 +119,7 @@ export function EditTaskDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="e-deadline">Deadline</Label>
+            <Label htmlFor="e-deadline">{t("task.deadline")}</Label>
             <Input
               id="e-deadline"
               type="datetime-local"
@@ -128,35 +130,32 @@ export function EditTaskDialog({
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>{t("task.priority")}</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="low">{t("priority.low")}</SelectItem>
+                  <SelectItem value="medium">{t("priority.medium")}</SelectItem>
+                  <SelectItem value="high">{t("priority.high")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t("task.category")}</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="School">School</SelectItem>
-                  <SelectItem value="Project">Project</SelectItem>
-                  <SelectItem value="Internship">Internship</SelectItem>
-                  <SelectItem value="Work">Work</SelectItem>
-                  <SelectItem value="Personal">Personal</SelectItem>
+                  <SelectItem value="School">{t("category.School")}</SelectItem>
+                  <SelectItem value="Work">{t("category.Work")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="e-workload">Workload (min)</Label>
+              <Label htmlFor="e-workload">{t("task.workload")}</Label>
               <Input
                 id="e-workload"
                 type="number"
@@ -170,7 +169,7 @@ export function EditTaskDialog({
 
           <div className="space-y-2 rounded-xl border bg-secondary/30 p-3">
             <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-              Subtasks ({task.subtasks.length})
+              {t("task.subtasks")} ({task.subtasks.length})
             </Label>
             <div className="space-y-1.5">
               {task.subtasks.map((s) => (
@@ -272,7 +271,7 @@ export function EditTaskDialog({
                     }
                   }
                 }}
-                placeholder="Add a subtask and press Enter..."
+                placeholder={t("task.subtask.placeholder")}
                 className="h-8 border-0 bg-card px-2 text-sm shadow-none"
               />
             </div>
@@ -280,9 +279,9 @@ export function EditTaskDialog({
 
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("task.cancel")}
             </Button>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit">{t("task.save")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -11,13 +11,14 @@ import {
   Pencil,
 } from "lucide-react";
 import { format, formatDistanceToNow, isPast } from "date-fns";
-import type { Task, Status } from "@/lib/tasks";
-import { priorityScore, subtaskProgress } from "@/lib/tasks";
+import type { Task, Status, Category } from "@/lib/tasks";
+import { subtaskProgress } from "@/lib/tasks";
 import { PriorityBadge } from "./PriorityBadge";
 import { EditTaskDialog } from "./EditTaskDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 interface Props {
   task: Task;
@@ -36,12 +37,9 @@ function nextStatus(s: Status): Status {
   return s === "not_started" ? "in_progress" : s === "in_progress" ? "completed" : "not_started";
 }
 
-const CATEGORY_TINT: Record<string, string> = {
+const CATEGORY_TINT: Record<Category, string> = {
   School: "bg-primary/10 text-primary",
-  Project: "bg-accent text-accent-foreground",
-  Internship: "bg-warning/15 text-[oklch(0.45_0.13_75)]",
   Work: "bg-success/15 text-[oklch(0.4_0.1_160)]",
-  Personal: "bg-secondary text-secondary-foreground",
 };
 
 export function TaskCard({
@@ -56,6 +54,7 @@ export function TaskCard({
   onUpdateSubtask,
   featured,
 }: Props) {
+  const { t } = useT();
   const [expanded, setExpanded] = useState(false);
   const [newSub, setNewSub] = useState("");
   const [editOpen, setEditOpen] = useState(false);
@@ -64,9 +63,11 @@ export function TaskCard({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const completed = task.status === "completed";
-  const overdue = !completed && isPast(new Date(task.deadline));
   const deadline = new Date(task.deadline);
+  const overdue = !completed && isPast(deadline);
   const progress = subtaskProgress(task);
+
+  const statusLabel = t(`status.${task.status}`);
 
   return (
     <div
@@ -101,7 +102,7 @@ export function TaskCard({
                 onUpdateTask && "cursor-pointer hover:text-primary transition-colors",
               )}
               onClick={() => onUpdateTask && setEditOpen(true)}
-              title={onUpdateTask ? "Click to edit" : undefined}
+              title={onUpdateTask ? t("task.click.edit") : undefined}
             >
               {task.name}
             </h3>
@@ -112,7 +113,7 @@ export function TaskCard({
                 CATEGORY_TINT[task.category] ?? "bg-secondary text-secondary-foreground",
               )}
             >
-              {task.category}
+              {t(`category.${task.category}`)}
             </span>
             <button
               onClick={() => onCycleStatus(task.id)}
@@ -127,13 +128,7 @@ export function TaskCard({
               ) : (
                 <Circle className="h-3 w-3" />
               )}
-              {task.status === "in_progress"
-                ? "In progress"
-                : task.status === "completed"
-                  ? "Done"
-                  : task.status === "overdue"
-                    ? "Overdue"
-                    : "Not started"}
+              {statusLabel}
             </button>
           </div>
 
@@ -147,24 +142,22 @@ export function TaskCard({
                 "inline-flex items-center gap-1.5",
                 overdue && "font-medium text-destructive",
               )}
+              suppressHydrationWarning
             >
               <Clock className="h-3.5 w-3.5" />
-              {mounted ? (overdue ? "Overdue · " : "") + formatDistanceToNow(deadline, { addSuffix: true }) : format(deadline, "MMM d, h:mm a")}
-              <span className="text-muted-foreground/60">
-                · {format(deadline, "MMM d, h:mm a")}
-              </span>
+              {mounted
+                ? (overdue ? `${t("status.overdue")} · ` : "") +
+                  formatDistanceToNow(deadline, { addSuffix: true }) +
+                  " · " +
+                  format(deadline, "MMM d, h:mm a")
+                : "—"}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Hourglass className="h-3.5 w-3.5" />
-              {task.workload} min
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              Score {priorityScore(task)}
+              {task.workload} {t("task.mins")}
             </span>
           </div>
 
-          {/* Progress bar */}
           <div className="mt-3 flex items-center gap-3">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
               <div
@@ -188,7 +181,8 @@ export function TaskCard({
               <ChevronRight
                 className={cn("h-3.5 w-3.5 transition-transform", expanded && "rotate-90")}
               />
-              {task.subtasks.filter((s) => s.done).length}/{task.subtasks.length} subtasks
+              {task.subtasks.filter((s) => s.done).length}/{task.subtasks.length}{" "}
+              {t("task.subtask.count")}
             </button>
           )}
         </div>
@@ -270,7 +264,7 @@ export function TaskCard({
                       setRenameValue(s.name);
                     }
                   }}
-                  title={onUpdateSubtask ? "Double-click to rename" : undefined}
+                  title={onUpdateSubtask ? t("task.dbl.rename") : undefined}
                 >
                   {s.name}
                 </span>
@@ -313,7 +307,7 @@ export function TaskCard({
               <Input
                 value={newSub}
                 onChange={(e) => setNewSub(e.target.value)}
-                placeholder="Add a subtask..."
+                placeholder={t("task.subtask.add")}
                 className="h-7 border-0 bg-transparent px-1 text-sm shadow-none focus-visible:ring-0"
               />
             </form>

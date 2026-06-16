@@ -6,6 +6,7 @@ import { ProgressOverview } from "@/components/ProgressOverview";
 import { WeeklyChart } from "@/components/WeeklyChart";
 import { weeklyProgress } from "@/lib/tasks";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/analytics")({
   head: () => ({
@@ -18,47 +19,48 @@ export const Route = createFileRoute("/analytics")({
 });
 
 function AnalyticsPage() {
+  const { t } = useT();
   const { tasks } = useTasks();
   const wp = weeklyProgress(tasks);
-  const overdue = tasks.filter((t) => t.status === "overdue").length;
-  const inProgress = tasks.filter((t) => t.status === "in_progress").length;
+  const overdue = tasks.filter((x) => x.status === "overdue").length;
+  const inProgress = tasks.filter((x) => x.status === "in_progress").length;
   const totalWorkload = Math.round(
-    tasks.filter((t) => t.status !== "completed").reduce((s, t) => s + t.workload, 0) / 60,
+    tasks.filter((x) => x.status !== "completed").reduce((s, x) => s + x.workload, 0) / 60,
   );
 
   const stats = [
     {
-      label: "Completion rate",
+      label: t("analytics.completion"),
       value: `${wp.percent}%`,
-      sub: `${wp.completed}/${wp.total} this week`,
+      sub: `${wp.completed}/${wp.total} ${t("analytics.thisWeek")}`,
       icon: CheckCircle2,
       color: "from-success/20 to-success/5 text-success",
     },
     {
-      label: "Active tasks",
+      label: t("analytics.active"),
       value: String(inProgress),
-      sub: "in progress",
+      sub: t("analytics.activeSub"),
       icon: TrendingUp,
       color: "from-primary/20 to-primary/5 text-primary",
     },
     {
-      label: "Workload left",
+      label: t("analytics.workloadLeft"),
       value: `${totalWorkload}h`,
-      sub: "across pending tasks",
+      sub: t("analytics.workloadSub"),
       icon: Clock,
       color: "from-accent/40 to-accent/10 text-[oklch(0.35_0.07_165)]",
     },
     {
-      label: "Overdue",
+      label: t("analytics.overdue"),
       value: String(overdue),
-      sub: "needs rescheduling",
+      sub: t("analytics.overdueSub"),
       icon: AlertTriangle,
       color: "from-destructive/20 to-destructive/5 text-destructive",
     },
   ];
 
   return (
-    <AppShell title="Analytics" subtitle="Trends, workload, and weekly performance.">
+    <AppShell title={t("analytics.title")} subtitle={t("analytics.subtitle")}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => {
           const Icon = s.icon;
@@ -87,18 +89,18 @@ function AnalyticsPage() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border bg-card p-6 shadow-[var(--shadow-soft)]">
-          <h3 className="text-sm font-semibold text-foreground">Workload by category</h3>
-          <p className="text-xs text-muted-foreground">Pending minutes across life buckets</p>
+          <h3 className="text-sm font-semibold text-foreground">{t("analytics.byCategory")}</h3>
+          <p className="text-xs text-muted-foreground">{t("analytics.byCategory.sub")}</p>
           <div className="mt-5 space-y-3">
-            {(["School", "Project", "Internship", "Work", "Personal"] as const).map((c) => {
+            {(["School", "Work"] as const).map((c) => {
               const mins = tasks
-                .filter((t) => t.category === c && t.status !== "completed")
-                .reduce((s, t) => s + t.workload, 0);
+                .filter((x) => x.category === c && x.status !== "completed")
+                .reduce((s, x) => s + x.workload, 0);
               const max = 400;
               return (
                 <div key={c}>
                   <div className="flex justify-between text-sm">
-                    <span className="font-medium text-foreground">{c}</span>
+                    <span className="font-medium text-foreground">{t(`category.${c}`)}</span>
                     <span className="text-muted-foreground tabular-nums">
                       {Math.round(mins / 60)}h {mins % 60}m
                     </span>
@@ -116,7 +118,7 @@ function AnalyticsPage() {
         </div>
 
         <div className="rounded-3xl border bg-card p-6 shadow-[var(--shadow-soft)]">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">Recent activity</h3>
+          <h3 className="mb-4 text-sm font-semibold text-foreground">{t("analytics.recent")}</h3>
           <ActivityFeed limit={5} />
         </div>
       </div>
