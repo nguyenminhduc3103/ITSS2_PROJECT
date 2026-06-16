@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Sparkles, Flame } from "lucide-react";
 import { useTasks } from "@/hooks/use-tasks";
 import { sortTasks, type Status } from "@/lib/tasks";
@@ -9,6 +9,7 @@ import { ProgressOverview } from "@/components/ProgressOverview";
 import { Recommendations } from "@/components/RecommendationCard";
 import { AppShell } from "@/components/AppShell";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,6 +30,7 @@ function nextStatus(s: Status): Status {
 }
 
 function Dashboard() {
+  const { t } = useT();
   const {
     tasks,
     addTask,
@@ -43,45 +45,46 @@ function Dashboard() {
 
   const sorted = useMemo(() => sortTasks(tasks), [tasks]);
   const todaysFocus = useMemo(
-    () => sorted.filter((t) => t.status !== "completed").slice(0, 3),
+    () => sorted.filter((x) => x.status !== "completed").slice(0, 3),
     [sorted],
   );
   const urgent = useMemo(
     () =>
-      sorted.filter((t) => {
-        const h = (new Date(t.deadline).getTime() - Date.now()) / 3600000;
-        return t.status !== "completed" && h < 24 && h > -24;
+      sorted.filter((x) => {
+        const h = (new Date(x.deadline).getTime() - Date.now()) / 3600000;
+        return x.status !== "completed" && h < 24 && h > -24;
       }),
     [sorted],
   );
 
   const cycle = (id: string) => {
-    const t = tasks.find((x) => x.id === id);
-    if (t) updateTask(id, { status: nextStatus(t.status) });
+    const tk = tasks.find((x) => x.id === id);
+    if (tk) updateTask(id, { status: nextStatus(tk.status) });
   };
 
-  const greeting = (() => {
+  // Greeting computed only on client to avoid SSR/timezone hydration mismatch.
+  const [greeting, setGreeting] = useState(t("greeting.morning"));
+  useEffect(() => {
     const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 18) return "Good afternoon";
-    return "Good evening";
-  })();
+    if (h < 12) setGreeting(t("greeting.morning"));
+    else if (h < 18) setGreeting(t("greeting.afternoon"));
+    else setGreeting(t("greeting.evening"));
+  }, [t]);
 
   return (
     <AppShell
-      title={`${greeting}, Alex 👋`}
-      subtitle="Here's a calm overview of your day."
+      title={greeting}
+      subtitle={t("dashboard.subtitle")}
       action={<AddTaskDialog onAdd={addTask} />}
     >
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          {/* Top Priority */}
           {todaysFocus[0] && (
             <section className="animate-slide-up">
               <div className="mb-3 flex items-center gap-2">
                 <Flame className="h-4 w-4 text-destructive" />
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  Top priority
+                  {t("dashboard.topPriority")}
                 </h3>
               </div>
               <TaskCard
@@ -99,20 +102,21 @@ function Dashboard() {
             </section>
           )}
 
-          {/* Urgent */}
           {urgent.length > 0 && (
             <section className="animate-slide-up">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  Urgent · next 24h
+                  {t("dashboard.urgent")}
                 </h3>
-                <span className="text-xs text-muted-foreground">{urgent.length} tasks</span>
+                <span className="text-xs text-muted-foreground">
+                  {urgent.length} {t("dashboard.urgent.count")}
+                </span>
               </div>
               <div className="space-y-3">
-                {urgent.slice(0, 4).map((t) => (
+                {urgent.slice(0, 4).map((tk) => (
                   <TaskCard
-                    key={t.id}
-                    task={t}
+                    key={tk.id}
+                    task={tk}
                     onToggle={toggleComplete}
                     onDelete={deleteTask}
                     onCycleStatus={cycle}
@@ -127,25 +131,24 @@ function Dashboard() {
             </section>
           )}
 
-          {/* Upcoming */}
           <section className="animate-slide-up">
             <div className="mb-3 flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Upcoming this week
+                {t("dashboard.upcoming")}
               </h3>
             </div>
             <div className="space-y-3">
               {sorted
-                .filter((t) => {
-                  const h = (new Date(t.deadline).getTime() - Date.now()) / 3600000;
-                  return t.status !== "completed" && h >= 24;
+                .filter((x) => {
+                  const h = (new Date(x.deadline).getTime() - Date.now()) / 3600000;
+                  return x.status !== "completed" && h >= 24;
                 })
                 .slice(0, 4)
-                .map((t) => (
+                .map((tk) => (
                   <TaskCard
-                    key={t.id}
-                    task={t}
+                    key={tk.id}
+                    task={tk}
                     onToggle={toggleComplete}
                     onDelete={deleteTask}
                     onCycleStatus={cycle}
@@ -160,12 +163,13 @@ function Dashboard() {
           </section>
         </div>
 
-        {/* Right column */}
         <aside className="space-y-6">
           <ProgressOverview tasks={tasks} />
           <Recommendations />
           <div className="rounded-3xl border bg-card p-6 shadow-[var(--shadow-soft)]">
-            <h3 className="mb-3 text-sm font-semibold text-foreground">Recent activity</h3>
+            <h3 className="mb-3 text-sm font-semibold text-foreground">
+              {t("dashboard.recent")}
+            </h3>
             <ActivityFeed limit={4} />
           </div>
         </aside>

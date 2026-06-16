@@ -1,29 +1,31 @@
 import type { Task } from "@/lib/tasks";
 import { weeklyProgress } from "@/lib/tasks";
 import { CheckCircle2, CircleDot, Circle, AlertCircle } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export function ProgressOverview({ tasks }: { tasks: Task[] }) {
+  const { t } = useT();
   const { completed, total, percent } = weeklyProgress(tasks);
-  const inProgress = tasks.filter((t) => t.status === "in_progress").length;
-  const notStarted = tasks.filter((t) => t.status === "not_started").length;
-  const overdue = tasks.filter((t) => t.status === "overdue").length;
-  const done = tasks.filter((t) => t.status === "completed").length;
+  const inProgress = tasks.filter((x) => x.status === "in_progress").length;
+  const notStarted = tasks.filter((x) => x.status === "not_started").length;
+  const overdue = tasks.filter((x) => x.status === "overdue").length;
+  const done = tasks.filter((x) => x.status === "completed").length;
 
   const stats = [
-    { label: "Done", value: done, icon: CheckCircle2, color: "text-success" },
-    { label: "In progress", value: inProgress, icon: CircleDot, color: "text-primary" },
-    { label: "To do", value: notStarted, icon: Circle, color: "text-muted-foreground" },
-    { label: "Overdue", value: overdue, icon: AlertCircle, color: "text-destructive" },
+    { label: t("overview.done"), value: done, icon: CheckCircle2, color: "text-success" },
+    { label: t("overview.inProgress"), value: inProgress, icon: CircleDot, color: "text-primary" },
+    { label: t("overview.todo"), value: notStarted, icon: Circle, color: "text-muted-foreground" },
+    { label: t("overview.overdue"), value: overdue, icon: AlertCircle, color: "text-destructive" },
   ];
 
   return (
     <div className="rounded-3xl border bg-card p-6 shadow-[var(--shadow-soft)]">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-muted-foreground">This week</p>
+          <p className="text-sm font-medium text-muted-foreground">{t("overview.thisWeek")}</p>
           <p className="mt-1 text-3xl font-bold text-foreground">{percent}%</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {completed} of {total} completed
+            {completed} {t("overview.of")} {total} {t("overview.completed")}
           </p>
         </div>
         <RingProgress percent={percent} />
@@ -60,14 +62,7 @@ function RingProgress({ percent }: { percent: number }) {
   const offset = c - (percent / 100) * c;
   return (
     <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
-      <circle
-        cx="32"
-        cy="32"
-        r={r}
-        fill="none"
-        stroke="var(--secondary)"
-        strokeWidth="6"
-      />
+      <circle cx="32" cy="32" r={r} fill="none" stroke="var(--secondary)" strokeWidth="6" />
       <circle
         cx="32"
         cy="32"

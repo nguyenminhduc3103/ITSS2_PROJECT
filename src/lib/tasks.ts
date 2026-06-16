@@ -1,6 +1,6 @@
 export type Priority = "low" | "medium" | "high";
 export type Status = "not_started" | "in_progress" | "completed" | "overdue";
-export type Category = "School" | "Project" | "Internship" | "Work" | "Personal";
+export type Category = "School" | "Work";
 
 export interface Subtask {
   id: string;

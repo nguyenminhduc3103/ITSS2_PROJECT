@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Priority, Category, Task, Subtask } from "@/lib/tasks";
+import { useT, DEFAULT_SUBTASKS } from "@/lib/i18n";
 
 interface Props {
   onAdd: (
@@ -39,6 +40,7 @@ function defaultDeadline() {
 }
 
 export function AddTaskDialog({ onAdd, trigger }: Props) {
+  const { t, lang } = useT();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -50,6 +52,12 @@ export function AddTaskDialog({ onAdd, trigger }: Props) {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+    const subtaskNames = DEFAULT_SUBTASKS[lang][category];
+    const subtasks: Subtask[] = subtaskNames.map((n) => ({
+      id: crypto.randomUUID(),
+      name: n,
+      done: false,
+    }));
     onAdd({
       name: name.trim(),
       description: description.trim() || undefined,
@@ -57,6 +65,7 @@ export function AddTaskDialog({ onAdd, trigger }: Props) {
       priority,
       category,
       workload: Number(workload) || 30,
+      subtasks,
     });
     setName("");
     setDescription("");
@@ -72,41 +81,39 @@ export function AddTaskDialog({ onAdd, trigger }: Props) {
       <DialogTrigger asChild>
         {trigger ?? (
           <Button size="lg" className="rounded-full shadow-[var(--shadow-soft)]">
-            <Plus className="mr-1 h-5 w-5" /> Add task
+            <Plus className="mr-1 h-5 w-5" /> {t("task.addBtn")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>New task</DialogTitle>
-          <DialogDescription>
-            Capture what's on your mind. We'll handle the prioritization.
-          </DialogDescription>
+          <DialogTitle>{t("task.new")}</DialogTitle>
+          <DialogDescription>{t("task.new.desc")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Task name</Label>
+            <Label htmlFor="name">{t("task.name")}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Finish history essay"
+              placeholder={t("task.name.placeholder")}
               autoFocus
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="desc">Description</Label>
+            <Label htmlFor="desc">{t("task.description")}</Label>
             <Textarea
               id="desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional notes"
+              placeholder={t("task.description.placeholder")}
               rows={2}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="deadline">Deadline</Label>
+            <Label htmlFor="deadline">{t("task.deadline")}</Label>
             <Input
               id="deadline"
               type="datetime-local"
@@ -117,35 +124,32 @@ export function AddTaskDialog({ onAdd, trigger }: Props) {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>{t("task.priority")}</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="low">{t("priority.low")}</SelectItem>
+                  <SelectItem value="medium">{t("priority.medium")}</SelectItem>
+                  <SelectItem value="high">{t("priority.high")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t("task.category")}</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="School">School</SelectItem>
-                  <SelectItem value="Project">Project</SelectItem>
-                  <SelectItem value="Internship">Internship</SelectItem>
-                  <SelectItem value="Work">Work</SelectItem>
-                  <SelectItem value="Personal">Personal</SelectItem>
+                  <SelectItem value="School">{t("category.School")}</SelectItem>
+                  <SelectItem value="Work">{t("category.Work")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="workload">Workload (min)</Label>
+              <Label htmlFor="workload">{t("task.workload")}</Label>
               <Input
                 id="workload"
                 type="number"
@@ -156,11 +160,14 @@ export function AddTaskDialog({ onAdd, trigger }: Props) {
               />
             </div>
           </div>
+          <div className="rounded-lg bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
+            ✨ {DEFAULT_SUBTASKS[lang][category].join(" · ")}
+          </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-              Cancel
+              {t("task.cancel")}
             </Button>
-            <Button type="submit">Add task</Button>
+            <Button type="submit">{t("task.add")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

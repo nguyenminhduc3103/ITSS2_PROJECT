@@ -13,13 +13,15 @@ import {
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useT } from "@/lib/i18n";
 
 const NAV = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/tasks", label: "Tasks", icon: ListChecks },
-  { to: "/calendar", label: "Calendar", icon: CalendarIcon },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/activity", label: "Activity", icon: History },
+  { to: "/", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { to: "/tasks", labelKey: "nav.tasks", icon: ListChecks },
+  { to: "/calendar", labelKey: "nav.calendar", icon: CalendarIcon },
+  { to: "/analytics", labelKey: "nav.analytics", icon: BarChart3 },
+  { to: "/activity", labelKey: "nav.activity", icon: History },
 ] as const;
 
 export function AppShell({
@@ -34,9 +36,9 @@ export function AppShell({
   action?: React.ReactNode;
 }) {
   const { location } = useRouterState();
+  const { t } = useT();
   return (
     <div className="min-h-screen bg-background">
-      {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r bg-card/60 backdrop-blur-sm lg:flex">
         <div className="flex items-center gap-3 px-5 py-5">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)]">
@@ -44,7 +46,7 @@ export function AppShell({
           </div>
           <div>
             <h1 className="text-sm font-semibold text-foreground">FocusFlow</h1>
-            <p className="text-xs text-muted-foreground">Student planner</p>
+            <p className="text-xs text-muted-foreground">{t("app.tagline")}</p>
           </div>
         </div>
 
@@ -67,32 +69,28 @@ export function AppShell({
                 )}
               >
                 <Icon className="h-4 w-4" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}
         </nav>
 
         <div className="m-3 rounded-2xl border bg-gradient-to-br from-primary-soft to-accent/40 p-4">
-          <p className="text-xs font-semibold text-foreground">Weekly streak</p>
-          <p className="mt-1 text-2xl font-bold text-primary">5 days 🔥</p>
-          <p className="mt-1 text-xs text-muted-foreground">Keep the rhythm going.</p>
+          <p className="text-xs font-semibold text-foreground">{t("sidebar.streak")}</p>
+          <p className="mt-1 text-2xl font-bold text-primary">{t("sidebar.streak.value")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("sidebar.streak.sub")}</p>
         </div>
       </aside>
 
-      {/* Main */}
       <div className="lg:pl-60">
-        {/* Topbar */}
         <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-md">
           <div className="flex items-center gap-3 px-4 py-3 sm:px-8">
             <div className="relative hidden flex-1 max-w-md md:block">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search tasks, projects..."
-                className="rounded-full bg-secondary/60 pl-9"
-              />
+              <Input placeholder={t("topbar.search")} className="rounded-full bg-secondary/60 pl-9" />
             </div>
             <div className="flex-1 md:hidden" />
+            <LanguageSwitcher />
             <Button variant="ghost" size="icon" className="rounded-full">
               <Bell className="h-4 w-4" />
             </Button>
@@ -100,7 +98,6 @@ export function AppShell({
           </div>
         </header>
 
-        {/* Mobile nav */}
         <nav className="sticky top-[57px] z-20 flex gap-1 overflow-x-auto border-b bg-card/60 px-3 py-2 backdrop-blur-sm lg:hidden">
           {NAV.map((item) => {
             const active =
@@ -120,7 +117,7 @@ export function AppShell({
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}
@@ -129,12 +126,8 @@ export function AppShell({
         <main className="px-4 py-6 sm:px-8 sm:py-8">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3 animate-fade-in">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                {title}
-              </h2>
-              {subtitle && (
-                <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-              )}
+              <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h2>
+              {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
             </div>
             {action}
           </div>
@@ -142,7 +135,6 @@ export function AppShell({
         </main>
       </div>
 
-      {/* FAB */}
       <Link
         to="/tasks"
         className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105 lg:hidden"

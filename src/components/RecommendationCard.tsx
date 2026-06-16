@@ -1,5 +1,6 @@
 import { Target, Clock, Coffee, BookOpen, Sparkles } from "lucide-react";
 import { RECOMMENDATIONS } from "@/lib/mock-data";
+import { useT } from "@/lib/i18n";
 
 const ICONS: Record<string, typeof Target> = {
   target: Target,
@@ -9,11 +10,12 @@ const ICONS: Record<string, typeof Target> = {
 };
 
 export function Recommendations() {
+  const { t } = useT();
   return (
     <div className="rounded-3xl border bg-gradient-to-br from-primary-soft/60 to-accent/30 p-6">
       <div className="mb-4 flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-semibold text-foreground">Suggestions for today</h3>
+        <h3 className="text-sm font-semibold text-foreground">{t("rec.title")}</h3>
       </div>
       <div className="space-y-2.5">
         {RECOMMENDATIONS.map((r) => {
@@ -27,8 +29,8 @@ export function Recommendations() {
                 <Icon className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">{r.title}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{r.reason}</p>
+                <p className="text-sm font-semibold text-foreground">{t(r.titleKey)}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t(r.reasonKey)}</p>
               </div>
             </div>
           );

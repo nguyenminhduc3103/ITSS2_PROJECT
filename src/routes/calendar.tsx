@@ -9,6 +9,7 @@ import { RescheduleDialog } from "@/components/RescheduleDialog";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/calendar")({
   head: () => ({
@@ -21,16 +22,17 @@ export const Route = createFileRoute("/calendar")({
 });
 
 function CalendarPage() {
+  const { t } = useT();
   const { tasks, updateTask } = useTasks();
   const [reschedule, setReschedule] = useState<Task | null>(null);
 
   const overlapping = useMemo(() => {
     const sched = tasks
-      .filter((t) => t.scheduledFor)
-      .map((t) => ({
-        t,
-        start: new Date(t.scheduledFor!).getTime(),
-        end: new Date(t.scheduledFor!).getTime() + t.workload * 60 * 1000,
+      .filter((x) => x.scheduledFor)
+      .map((x) => ({
+        t: x,
+        start: new Date(x.scheduledFor!).getTime(),
+        end: new Date(x.scheduledFor!).getTime() + x.workload * 60 * 1000,
       }));
     const conflicts: string[] = [];
     for (let i = 0; i < sched.length; i++) {
@@ -44,18 +46,15 @@ function CalendarPage() {
   }, [tasks]);
 
   const todaysSchedule = tasks
-    .filter((t) => t.scheduledFor && isToday(new Date(t.scheduledFor)))
+    .filter((x) => x.scheduledFor && isToday(new Date(x.scheduledFor)))
     .sort((a, b) => +new Date(a.scheduledFor!) - +new Date(b.scheduledFor!));
 
   const overdue = tasks.filter(
-    (t) => t.status !== "completed" && new Date(t.deadline).getTime() < Date.now(),
+    (x) => x.status !== "completed" && new Date(x.deadline).getTime() < Date.now(),
   );
 
   return (
-    <AppShell
-      title="Calendar"
-      subtitle="Drag-friendly weekly planner with time blocks and conflict detection."
-    >
+    <AppShell title={t("calendar.title")} subtitle={t("calendar.subtitle")}>
       {overdue.length > 0 && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 animate-fade-in">
           <div className="flex items-center gap-3">
@@ -64,15 +63,13 @@ function CalendarPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">
-                {overdue.length} task{overdue.length > 1 ? "s" : ""} overdue
+                {overdue.length} {t("calendar.overdue")}
               </p>
-              <p className="text-xs text-muted-foreground">
-                Reschedule them to keep your week realistic.
-              </p>
+              <p className="text-xs text-muted-foreground">{t("calendar.overdue.sub")}</p>
             </div>
           </div>
           <Button onClick={() => setReschedule(overdue[0])} variant="default" size="sm">
-            <CalendarClock className="mr-1 h-4 w-4" /> Reschedule first
+            <CalendarClock className="mr-1 h-4 w-4" /> {t("calendar.rescheduleFirst")}
           </Button>
         </div>
       )}
@@ -83,41 +80,41 @@ function CalendarPage() {
 
           {overlapping.size > 0 && (
             <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
-              <p className="text-sm font-semibold text-destructive">⚠ Overlapping time blocks</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                You've scheduled multiple tasks for the same slot. Consider moving one.
-              </p>
+              <p className="text-sm font-semibold text-destructive">{t("calendar.overlap")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("calendar.overlap.sub")}</p>
             </div>
           )}
         </div>
 
         <aside className="space-y-4">
           <div className="rounded-3xl border bg-card p-5 shadow-[var(--shadow-soft)]">
-            <h3 className="text-sm font-semibold text-foreground">Today's plan</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("calendar.today")}</h3>
             <p className="text-xs text-muted-foreground">{format(new Date(), "EEEE, MMMM d")}</p>
             <div className="mt-4 space-y-2">
               {todaysSchedule.length === 0 && (
-                <p className="text-sm text-muted-foreground">No scheduled blocks today.</p>
+                <p className="text-sm text-muted-foreground">{t("calendar.noPlan")}</p>
               )}
-              {todaysSchedule.map((t) => (
+              {todaysSchedule.map((tk) => (
                 <div
-                  key={t.id}
+                  key={tk.id}
                   className={cn(
                     "flex items-center gap-3 rounded-xl border bg-secondary/40 p-3",
-                    overlapping.has(t.id) && "border-destructive/40 bg-destructive/5",
+                    overlapping.has(tk.id) && "border-destructive/40 bg-destructive/5",
                   )}
                 >
                   <div className="text-center">
                     <p className="text-xs font-medium text-muted-foreground">
-                      {format(new Date(t.scheduledFor!), "h:mm")}
+                      {format(new Date(tk.scheduledFor!), "h:mm")}
                     </p>
                     <p className="text-[10px] uppercase text-muted-foreground">
-                      {format(new Date(t.scheduledFor!), "a")}
+                      {format(new Date(tk.scheduledFor!), "a")}
                     </p>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.workload} min · {t.category}</p>
+                    <p className="truncate text-sm font-medium text-foreground">{tk.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {tk.workload} {t("task.mins")} · {t(`category.${tk.category}`)}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -125,21 +122,21 @@ function CalendarPage() {
           </div>
 
           <div className="rounded-3xl border bg-gradient-to-br from-primary-soft to-accent/40 p-5">
-            <p className="text-sm font-semibold text-foreground">Time allocation</p>
+            <p className="text-sm font-semibold text-foreground">{t("calendar.alloc")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {Math.round(tasks.reduce((s, t) => s + (t.scheduledFor ? t.workload : 0), 0) / 60)}h
-              scheduled this week
+              {Math.round(tasks.reduce((s, x) => s + (x.scheduledFor ? x.workload : 0), 0) / 60)}h{" "}
+              {t("calendar.alloc.sub")}
             </p>
             <div className="mt-3 space-y-1.5">
-              {(["School", "Project", "Internship", "Work", "Personal"] as const).map((c) => {
+              {(["School", "Work"] as const).map((c) => {
                 const mins = tasks
-                  .filter((t) => t.category === c && t.scheduledFor)
-                  .reduce((s, t) => s + t.workload, 0);
+                  .filter((x) => x.category === c && x.scheduledFor)
+                  .reduce((s, x) => s + x.workload, 0);
                 const max = 600;
                 return (
                   <div key={c}>
                     <div className="flex justify-between text-xs">
-                      <span className="text-foreground">{c}</span>
+                      <span className="text-foreground">{t(`category.${c}`)}</span>
                       <span className="text-muted-foreground">{Math.round(mins / 60)}h</span>
                     </div>
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-card/60">
@@ -156,18 +153,18 @@ function CalendarPage() {
 
           {overdue.length > 0 && (
             <div className="rounded-3xl border bg-card p-5 shadow-[var(--shadow-soft)]">
-              <p className="text-sm font-semibold text-foreground">Needs rescheduling</p>
+              <p className="text-sm font-semibold text-foreground">{t("calendar.needReschedule")}</p>
               <div className="mt-3 space-y-2">
-                {overdue.map((t) => (
+                {overdue.map((tk) => (
                   <button
-                    key={t.id}
-                    onClick={() => setReschedule(t)}
+                    key={tk.id}
+                    onClick={() => setReschedule(tk)}
                     className="flex w-full items-center justify-between rounded-xl border bg-secondary/40 p-3 text-left transition-colors hover:bg-secondary"
                   >
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-foreground">{t.name}</p>
+                      <p className="truncate text-sm font-medium text-foreground">{tk.name}</p>
                       <p className="text-xs text-destructive">
-                        Due {format(new Date(t.deadline), "MMM d, h:mm a")}
+                        {t("calendar.due")} {format(new Date(tk.deadline), "MMM d, h:mm a")}
                       </p>
                     </div>
                     <CalendarClock className="h-4 w-4 text-muted-foreground" />

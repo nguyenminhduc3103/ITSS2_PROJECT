@@ -1,25 +1,30 @@
+import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { CheckCircle2, PlusCircle, Pencil, CalendarClock, TrendingUp } from "lucide-react";
 import { MOCK_ACTIVITY, type ActivityItem } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 const META: Record<
   ActivityItem["type"],
-  { icon: typeof CheckCircle2; label: string; color: string; tint: string }
+  { icon: typeof CheckCircle2; key: string; color: string; tint: string }
 > = {
-  completed: { icon: CheckCircle2, label: "Completed", color: "text-success", tint: "bg-success/10" },
-  created: { icon: PlusCircle, label: "Created", color: "text-primary", tint: "bg-primary/10" },
-  updated: { icon: Pencil, label: "Updated", color: "text-foreground", tint: "bg-secondary" },
+  completed: { icon: CheckCircle2, key: "activity.completed", color: "text-success", tint: "bg-success/10" },
+  created: { icon: PlusCircle, key: "activity.created", color: "text-primary", tint: "bg-primary/10" },
+  updated: { icon: Pencil, key: "activity.updated", color: "text-foreground", tint: "bg-secondary" },
   rescheduled: {
     icon: CalendarClock,
-    label: "Rescheduled",
+    key: "activity.rescheduled",
     color: "text-[oklch(0.45_0.13_75)]",
     tint: "bg-warning/15",
   },
-  progress: { icon: TrendingUp, label: "Progress", color: "text-primary", tint: "bg-primary/10" },
+  progress: { icon: TrendingUp, key: "activity.progress", color: "text-primary", tint: "bg-primary/10" },
 };
 
 export function ActivityFeed({ limit }: { limit?: number }) {
+  const { t } = useT();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const items = limit ? MOCK_ACTIVITY.slice(0, limit) : MOCK_ACTIVITY;
   return (
     <div className="space-y-3">
@@ -32,24 +37,17 @@ export function ActivityFeed({ limit }: { limit?: number }) {
             className="relative flex gap-4 rounded-2xl border bg-card p-4 transition-all hover:shadow-[var(--shadow-soft)] animate-fade-in"
             style={{ animationDelay: `${idx * 40}ms` }}
           >
-            <div
-              className={cn(
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-                m.tint,
-              )}
-            >
+            <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", m.tint)}>
               <Icon className={cn("h-4 w-4", m.color)} />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-foreground">
-                <span className={m.color}>{m.label}</span> · {a.taskName}
+                <span className={m.color}>{t(m.key)}</span> · {a.taskName}
               </p>
-              {a.detail && (
-                <p className="mt-0.5 text-xs text-muted-foreground">{a.detail}</p>
-              )}
+              {a.detail && <p className="mt-0.5 text-xs text-muted-foreground">{a.detail}</p>}
             </div>
             <span className="shrink-0 text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(a.time), { addSuffix: true })}
+              {mounted ? formatDistanceToNow(new Date(a.time), { addSuffix: true }) : ""}
             </span>
           </div>
         );

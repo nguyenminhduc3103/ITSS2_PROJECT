@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/activity")({
   head: () => ({
@@ -13,8 +14,9 @@ export const Route = createFileRoute("/activity")({
 });
 
 function ActivityPage() {
+  const { t } = useT();
   return (
-    <AppShell title="Activity" subtitle="Everything you've shipped recently.">
+    <AppShell title={t("activity.title")} subtitle={t("activity.subtitle")}>
       <div className="mx-auto max-w-3xl">
         <ActivityFeed />
       </div>

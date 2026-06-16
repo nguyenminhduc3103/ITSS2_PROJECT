@@ -1,20 +1,22 @@
 import { WEEKLY_COMPLETION } from "@/lib/mock-data";
+import { useT } from "@/lib/i18n";
 
 export function WeeklyChart() {
+  const { t } = useT();
   const max = Math.max(...WEEKLY_COMPLETION.map((d) => d.planned));
   return (
     <div className="rounded-3xl border bg-card p-6 shadow-[var(--shadow-soft)]">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Weekly productivity</h3>
-          <p className="text-xs text-muted-foreground">Tasks completed vs planned</p>
+          <h3 className="text-sm font-semibold text-foreground">{t("weekly.title")}</h3>
+          <p className="text-xs text-muted-foreground">{t("weekly.sub")}</p>
         </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-primary" /> Completed
+            <span className="h-2 w-2 rounded-full bg-primary" /> {t("weekly.completed")}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-secondary" /> Planned
+            <span className="h-2 w-2 rounded-full bg-secondary" /> {t("weekly.planned")}
           </span>
         </div>
       </div>
