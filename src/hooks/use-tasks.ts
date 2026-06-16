@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Task, Subtask } from "@/lib/tasks";
 import { MOCK_TASKS } from "@/lib/mock-data";
 
-const KEY = "student-tasks-v2";
+const KEY = "student-tasks-v3";
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
